@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Larong Kulay para sa mga Bata!</title>
     <style>
-        /* --- CSS PARA SA MAKULAY AT CHILD-FRIENDLY NA DESIGN --- */
         body {
             font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif;
             background-color: #ffeb3b; 
@@ -33,7 +32,289 @@
             position: relative;
         }
 
-        /* Score Tracker Style */
+        .score-board {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff5722;
+            color: white;
+            padding: 8px 25px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: 0 5px 0 #b71c1c;
+            border: 4px solid white;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .timer-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 16px;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+            border: 3px solid #ccc;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #4caf50;
+            border-radius: 5px;
+            transition: width 0.1s linear, background-color 0.5s ease;
+        }
+
+        h1 {
+            color: #ff5722;
+            font-size: 2.3rem;
+            margin-top: 15px;
+            text-shadow: 2px 2px #ffe082;
+        }
+
+        .instruction {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        #color-target {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 15px;
+            background-color: #f5f5f5;
+            box-shadow: inset 0 5px 5px rgba(0,0,0,0.1);
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .btn-option {
+            font-family: inherit;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+        }
+
+        .btn-option:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+        }
+
+        .btn-option:hover {
+            filter: brightness(1.1);
+        }
+
+        #feedback {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            height: 50px;
+        }
+
+        .magaling {
+            color: #4caf50;
+            animation: bounce 0.5s ease infinite alternate;
+        }
+
+        .mali {
+            color: #f44336;
+        }
+
+        .victory-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff9800;
+            border-radius: 22px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 20;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .victory-screen h2 {
+            font-size: 3rem;
+            margin: 0 0 10px 0;
+            text-shadow: 3px 3px 0px #b71c1c;
+        }
+
+        .victory-screen p {
+            font-size: 1.5rem;
+            margin: 0 0 25px 0;
+        }
+
+        .btn-restart {
+            font-family: inherit;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff5722;
+            background-color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #e0e0e0;
+            transition: transform 0.1s;
+        }
+
+        .btn-restart:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #e0e0e0;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div class="score-board">⭐ Iskor: <span id="score-val">0</span> / 10</div>
+
+        <div id="victory-layer" class="victory-screen">
+            <h2>🏆 PANALO! 🏆</h2>
+            <p>Napakagaling mo! Nakakuha ka ng 10 puntos!</p>
+            <button class="btn-restart" onclick="resetGame()">Maglaro Muli 🎮</button>
+        </div>
+
+        <h1>Anong Kulay Ito?</h1>
+        <p class="instruction">Pindutin ang tamang kulay:</p>
+        
+        <div id="color-target">---</div>
+
+        <div class="timer-container">
+            <div id="timer" class="timer-bar"></div>
+        </div>
+
+        <div class="options-container">
+            <button class="btn-option" onclick="checkAnswer(0)" id="btn-0">Option 1</button>
+            <button class="btn-option" onclick="checkAnswer(1)" id="btn-1">Option 2</button>
+            <button class="btn-option" onclick="checkAnswer(2)" id="btn-2">Option 3</button>
+        </div>
+
+        <div id="feedback"></div>
+    </div>
+
+    <script>
+        const colorPool = [
+            { name: 'Pula', hex: '#f44336', textColor: '#b71c1c' },
+            { name: 'Asul', hex: '#2196f3', textColor: '#0d47a1' },
+            { name: 'Berde', hex: '#4caf50', textColor: '#1b5e20' },
+            { name: 'Dilaw', hex: '#ffeb3b', textColor: '#f57f17' },
+            { name: 'Rosas', hex: '#e91e63', textColor: '#880e4f' },
+            { name: 'Kahel', hex: '#ff9800', textColor: '#e65100' },
+            { name: 'Lila', hex: '#9c27b0', textColor: '#4a148c' }
+        ];
+
+        let currentQuestion = {};
+        let score = 0;
+        let audioCtx = null;
+        
+        let timeLeft = 100; 
+        let timerInterval = null;
+        const totalTime = 10000; 
+        const intervalStep = 100; 
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playCorrectSound() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'triangle';
+            const now = audioCtx.currentTime;
+            osc.frequency.setValueAtTime(523.25, now); 
+            osc.frequency.setValueAtTime(659.25, now + 0.1); 
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
+
+        function playWrongSound() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sawtooth';
+            const now = audioCtx.currentTime;
+            osc.frequency.setValueAtTime(220.00, now); 
+            osc.frequency.linearRampToValueAtTime(146.83, now + 0.2); 
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            osc.start(now);
+            osc.stop(now + 0.25);
+        }
+
+        function playVictorySound() {
+            initAudio();
+            const now = audioCtx.currentTime;
+            const notes = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50]; 
+            
+            notes.forEach((freq, index) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'triangle';
+                
+                osc.frequency.setValueAtTime(freq, now + (index * 0.1));
+                gain.gain.setValueAtTime(0.2, now + (index * 0.1));
+                gain.gain.exponentialRampToValueAtTime(0.01, now + (index * 0.1) + 0.15);
+                
+                osc.start(now + (index * 0.1));
+                osc.stop(now + (index * 0.1) + 0.15);
+            });
+        }
+
+        function shuffleArray(array) {
+            let newArray = [...array];
+            return newArray.sort(() => Math.random() - 0.5);
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 100;
+            const timerBar = document.getElementById('timer');
+            timerBar.style.width = '100%';
         .score-board {
             position: absolute;
             top: -25px;
